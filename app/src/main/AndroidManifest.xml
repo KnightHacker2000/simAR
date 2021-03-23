@@ -27,12 +27,12 @@
 
         <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote"> </service>
 
-        <receiver android:name=".SMS_Receiver">
-            <intent-filter>
-                <action android:name="edu.osu.simar.ACTION_SMS_STATUS" />
-                <!-- no category because not for an activity! -->
-            </intent-filter>
-        </receiver>
+<!--        <receiver android:name=".SMS_Receiver">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="edu.osu.simar.ACTION_SMS_STATUS" />-->
+<!--                &lt;!&ndash; no category because not for an activity! &ndash;&gt;-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
     </application>
 
@@ -62,9 +62,4 @@
 
     <!--用于申请获取发送信息权限-->
     <uses-permission android:name="android.permission.SEND_SMS" />
-
-
-
-
-
 </manifest>

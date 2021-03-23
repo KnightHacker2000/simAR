@@ -1,11 +1,19 @@
 package edu.osu.simar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.telephony.SmsManager;
@@ -15,6 +23,8 @@ import android.widget.ImageView;
 
 import com.baidu.mapapi.map.MapView;
 
+import static edu.osu.simar.R.string.Test_Noti_Title;
+
 public class MainActivity extends AppCompatActivity {
     private MapView mMapView = null;
     private Button mButton_cam = null;
@@ -22,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mImageView = null;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final String ACTION_SMS_STATUS = "edu.osu.simar.ACTION_SMS_STATUS"; // String for customized action
+    public static final int SMS_NOTI_ID = 0; // ID for notification
+    public static final String TEST_CHANNEL_ID = "SIMAR_TEST_CHANNEL"; // ID for the test channel
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Context-registered broadcast receiver for SMS ACTION
+        BroadcastReceiver br = new SMS_Receiver();
+        IntentFilter filter = new IntentFilter(ACTION_SMS_STATUS);
+        this.registerReceiver(br, filter);
+
+
 
         //获取地图控件引用
         //mMapView = (MapView) findViewById(R.id.bmapView);
@@ -67,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         //mMapView.onResume();
+        SMS_notification();
+
     }
     @Override
     public void onPause() {
@@ -83,12 +103,55 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             mImageView.setImageBitmap(imageBitmap);
         }
 
+//        if(requestCode == )
+
+    }
+
+    public void SMS_notification(){
+
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        createNotificationChannel();
+
+        // Build a notification object
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TEST_CHANNEL_ID)
+                .setSmallIcon(R.drawable.done)
+                .setContentTitle(getResources().getString(R.string.Test_Noti_Title))
+                .setContentText(getResources().getString(R.string.Test_Noti_Text))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(SMS_NOTI_ID, builder.build());
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel( TEST_CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
 }

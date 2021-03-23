@@ -5,5 +5,9 @@
     <string name="map_button">Launch Map</string>
     <string name="my_image">Preview Image Taken</string>
     <string name="camera_button">Take Picture</string>
-    <string name="SMS_button">Send Text</string>
+    <string name="SMS_button">Send SMS</string>
+    <string name="Test_Noti_Title">App Launch Success!</string>
+    <string name="Test_Noti_Text">Welcome to SimAR!</string>
+    <string name="channel_name">Test_channel</string>
+    <string name="channel_description">Test_channel</string>
 </resources>
